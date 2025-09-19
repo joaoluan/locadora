@@ -1,0 +1,117 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema locadora
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema locadora
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `locadora` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
+USE `locadora` ;
+
+-- -----------------------------------------------------
+-- Table `locadora`.`clientes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `locadora`.`clientes` (
+  `CPF` VARCHAR(11) NOT NULL,
+  `Nome` VARCHAR(255) NOT NULL,
+  `Categoria_da_CNH` VARCHAR(2) NOT NULL,
+  `Data_de_nascimento` DATE NOT NULL,
+  `Rua` VARCHAR(255) NOT NULL,
+  `Numero` VARCHAR(10) NOT NULL,
+  `Cidade` VARCHAR(255) NOT NULL,
+  `Estado` VARCHAR(255) NOT NULL,
+  `CEP` VARCHAR(9) NOT NULL,
+  PRIMARY KEY (`CPF`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `locadora`.`veiculos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `locadora`.`veiculos` (
+  `Placa` CHAR(7) NOT NULL,
+  `Nome` VARCHAR(255) NOT NULL,
+  `Modelo` VARCHAR(50) NOT NULL,
+  `Ano` YEAR NOT NULL,
+  `Fabricante` VARCHAR(30) NOT NULL,
+  `Número_de_passageiros` TINYINT NOT NULL,
+  `Capacidade_do_porta_malas` CHAR(4) NOT NULL,
+  `Valor_de_locação_por_dia` DECIMAL(10,2) NOT NULL,
+  `Valor_de_locação_por_semana` DECIMAL(10,2) NOT NULL,
+  `Valor_de_locação_por_mês` DECIMAL(10,2) NOT NULL,
+  `Categoria_CNH` VARCHAR(2) NOT NULL,
+  PRIMARY KEY (`Placa`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `locadora`.`manutencao`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `locadora`.`manutencao` (
+  `ID_da_manutenção` INT NOT NULL AUTO_INCREMENT,
+  `Placa` VARCHAR(7) NOT NULL,
+  `Data_de_início_da_manutenção` DATE NOT NULL,
+  `Data_de_término_da_manutenção` DATE NOT NULL,
+  `Custos_envolvidos_na_manutenção` DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (`ID_da_manutenção`),
+  INDEX `Placa` (`Placa` ASC) VISIBLE,
+  CONSTRAINT `manutencao_ibfk_1`
+    FOREIGN KEY (`Placa`)
+    REFERENCES `locadora`.`veiculos` (`Placa`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `locadora`.`historico_manutencao`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `locadora`.`historico_manutencao` (
+  `ID_da_atividade` INT NOT NULL AUTO_INCREMENT,
+  `ID_da_manutenção` INT NOT NULL,
+  `Descrição_da_atividade` TEXT NOT NULL,
+  `data` DATE NOT NULL,
+  `Hora` TIME NOT NULL,
+  PRIMARY KEY (`ID_da_atividade`),
+  INDEX `ID_da_manutenção` (`ID_da_manutenção` ASC) VISIBLE,
+  CONSTRAINT `historico_manutencao_ibfk_1`
+    FOREIGN KEY (`ID_da_manutenção`)
+    REFERENCES `locadora`.`manutencao` (`ID_da_manutenção`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `locadora`.`locacao`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `locadora`.`locacao` (
+  `CPF` VARCHAR(11) NOT NULL,
+  `Placa` VARCHAR(7) NOT NULL,
+  `Data_inicial_locacao` DATETIME NOT NULL,
+  `Data_final_locacao` DATETIME NOT NULL,
+  `Valor_pago` DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (`CPF`, `Placa`, `Data_inicial_locacao`),
+  INDEX `Placa` (`Placa` ASC) VISIBLE,
+  CONSTRAINT `locacao_ibfk_1`
+    FOREIGN KEY (`CPF`)
+    REFERENCES `locadora`.`clientes` (`CPF`),
+  CONSTRAINT `locacao_ibfk_2`
+    FOREIGN KEY (`Placa`)
+    REFERENCES `locadora`.`veiculos` (`Placa`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;

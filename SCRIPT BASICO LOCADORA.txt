@@ -1,0 +1,57 @@
+CREATE DATABASE locadora 
+CHARACTER SET utf8mb4 
+COLLATE utf8mb4_unicode_ci;
+CREATE TABLE Veiculo (
+    Placa VARCHAR(7) PRIMARY KEY,
+    Nome VARCHAR(50),
+    Modelo VARCHAR(50),
+    Ano INT,
+    Fabricante VARCHAR(50),
+    NumPassageiros INT,
+    CapacidadePortaMalas DECIMAL(10,2),
+    ValorLocacaoDia DECIMAL(10,2),
+    ValorLocacaoSemana DECIMAL(10,2),
+    ValorLocacaoMes DECIMAL(10,2),
+    Categoria ENUM('A', 'B', 'C', 'D', 'E')
+);
+
+CREATE TABLE Cliente (
+    CPF VARCHAR(11) PRIMARY KEY,
+    Nome VARCHAR(100),
+    CategoriaCNH ENUM('A', 'B', 'C', 'D', 'E'),
+    DataNascimento DATE,
+    Rua VARCHAR(100),
+    Numero INT,
+    Cidade VARCHAR(100),
+    Estado VARCHAR(50),
+    CEP VARCHAR(9)
+);
+
+CREATE TABLE Manutencao (
+    IDManutencao INT AUTO_INCREMENT PRIMARY KEY,
+    PlacaVeiculo VARCHAR(7),
+    DataInicio DATE,
+    DataTermino DATE,
+    Custos DECIMAL(10,2),
+    FOREIGN KEY (PlacaVeiculo) REFERENCES Veiculo(Placa)
+);
+
+CREATE TABLE AtividadeManutencao (
+    IDAtividade INT AUTO_INCREMENT PRIMARY KEY,
+    IDManutencao INT,
+    DescricaoAtividade TEXT,
+    Data DATE,
+    Hora TIME,
+    FOREIGN KEY (IDManutencao) REFERENCES Manutencao(IDManutencao)
+);
+
+CREATE TABLE Locacao (
+    CPFCliente VARCHAR(11),
+    PlacaVeiculo VARCHAR(10),
+    DataInicial DATE,
+    DataFinal DATE,
+    ValorPago DECIMAL(10,2),
+    PRIMARY KEY (CPFCliente, PlacaVeiculo),
+    FOREIGN KEY (CPFCliente) REFERENCES Cliente(CPF),
+    FOREIGN KEY (PlacaVeiculo) REFERENCES Veiculo(Placa)
+);

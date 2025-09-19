@@ -1,0 +1,17 @@
+-- Adicionar a nova coluna Sequencial
+ALTER TABLE Locacao
+ADD COLUMN Sequencial INT;
+
+-- Definir a nova coluna Sequencial como auto_increment, mas apenas quando houver uma nova combinação de PlacaVeiculo e CPFCliente
+ALTER TABLE Locacao
+MODIFY COLUMN Sequencial INT,
+ADD UNIQUE INDEX idx_Placa_CPF_Sequencial (PlacaVeiculo, CPFCliente, Sequencial);
+
+-- Definir o valor inicial do Sequencial para cada nova combinação de PlacaVeiculo e CPFCliente
+UPDATE Locacao l
+JOIN (
+    SELECT PlacaVeiculo, CPFCliente, COALESCE(MAX(Sequencial), 0) + 1 AS NextSequencial
+    FROM Locacao
+    GROUP BY PlacaVeiculo, CPFCliente
+) t ON l.PlacaVeiculo = t.PlacaVeiculo AND l.CPFCliente = t.CPFCliente
+SET l.Sequencial = t.NextSequencial;
